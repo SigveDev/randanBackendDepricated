@@ -7,11 +7,12 @@ const salt = 10;
 
 Router.post("/register", async (req, res) => {
     try {
-        const hashedPassword = await bcrypt.hash(req.headers.password, salt);
+        const hashedPassword = await bcrypt.hash(req.header("password"), salt);
 
         const newUser = new User({
-            username: req.headers.username,
+            username: req.header("username"),
             password: hashedPassword,
+            isAdmin: req.header("isAdmin"),
         });
 
         const user = await newUser.save();
@@ -19,6 +20,7 @@ Router.post("/register", async (req, res) => {
         const accessToken = jwt.sign({
             _id: user._id,
             username: user.username,
+            isAdmin: user.isAdmin,
             createdAt: user.createdAt,
         }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
@@ -51,6 +53,7 @@ Router.post("/login", async (req, res) => {
         const accessToken = jwt.sign({
             _id: user._id,
             username: user.username,
+            isAdmin: user.isAdmin,
             createdAt: user.createdAt,
         }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
